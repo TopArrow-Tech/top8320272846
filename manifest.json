@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "id": "top8320272846",
+  "name": "幕控 StagePilot",
+  "name_en": "StagePilot",
+  "description": "在可信局域网中配对多台显示设备，编排分区图文视频场景并统一控制播放；HTTP 传输不加密，可随时关闭局域网服务。",
+  "min_platform_version": null,
+  "runtime": {
+    "type": "node",
+    "min_version": "24.0",
+    "extensions": []
+  },
+  "database": {
+    "type": "sqlite"
+  },
+  "entry": {
+    "public_dir": "",
+    "main": "server/index.js",
+    "router": null,
+    "health": "/__health",
+    "index": null
+  },
+  "scripts": {
+    "install": null,
+    "migrate": null,
+    "uninstall": null
+  },
+  "data": {
+    "dirs": [],
+    "schema_version": null
+  },
+  "startup": {
+    "auto_start": false
+  },
+  "ui": {
+    "icon": null,
+    "open_mode": "app_window",
+    "window": null
+  },
+  "network": {
+    "lan": true
+  },
+  "author": null,
+  "license": null,
+  "homepage": null
+}

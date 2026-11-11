@@ -1,0 +1,3 @@
+# 由 TopArrow 生成：禁止 Git 改写换行符，
+# 否则 PHP 源码会产生大量无意义 diff。
+* -text

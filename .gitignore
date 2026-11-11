@@ -1,0 +1,29 @@
+# 数据库文件（正式数据在 TOPARROW_DATA_DIR，不入版本库）
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.db
+
+# 打包产物
+dist/
+
+# AI 临时代码（说明文件除外）
+_aiact/*
+!_aiact/目录说明Readme.txt
+
+# 依赖
+node_modules/
+
+# 编辑器与系统
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+
+# All user data and local release output
+data/
+release/
+.env
+*.pem
+*.key

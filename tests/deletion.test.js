@@ -1,0 +1,22 @@
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const {openStore}=require('../server/store'),{inspect,execute}=require('../server/deletion');
+test('confirmed deletion removes references, stops only affected screens and rejects stale confirmation',t=>{
+ const base=path.resolve(__dirname,'../data/tmp');fs.mkdirSync(base,{recursive:true});const dir=fs.mkdtempSync(path.join(base,'delete-')),s=openStore(dir);t.after(()=>{s.db.close();fs.rmSync(dir,{recursive:true,force:true});});
+ s.run('INSERT INTO activities VALUES(?,?,?,?,?)','a','Event','',0,1);for(const id of ['one','two'])s.run('INSERT INTO screens VALUES(?,?,?)',id,'a',id);
+ s.run('INSERT INTO assets VALUES(?,?,?,?,?,?,?,?)','asset','a','Picture','image','image/png','asset.png',1,1);
+ const first={background:'#000000',layers:[{type:'image',asset:'asset'}]},second={background:'#000000',layers:[{type:'text',text:'Keep playing'}]};
+ s.run('INSERT INTO scenes VALUES(?,?,?,?,?)','s1','a','First',JSON.stringify({one:first}),0);s.run('INSERT INTO scenes VALUES(?,?,?,?,?)','s2','a','Second',JSON.stringify({two:second}),1);
+ s.run('INSERT INTO devices VALUES(?,?,?,?,?)','device','Display','hash','two',1);
+ const runtime={version:2,activity:'a',scene:'s2',layout:{one:first,two:second},screenStates:{one:{scene:'s1',cue:'first',startAt:1,version:1},two:{scene:'s2',cue:'second',startAt:2,version:2}},assets:[{id:'asset'}],blackout:false};
+ s.setting('lastScene',{activity:'a',scene:'s2',outputs:{one:{scene:'s1',config:first},two:{scene:'s2',config:second}}});
+ const plan=inspect(s,runtime,'assets','asset');assert.equal(plan.scenes[0].name,'First');assert.equal(plan.activeScreens[0].id,'one');assert.equal(execute(s,runtime,'assets','asset').conflict,'deleteNeedsConfirmation');assert.ok(s.get('SELECT id FROM assets WHERE id=?','asset'));
+ s.run('INSERT INTO scenes VALUES(?,?,?,?,?)','s3','a','New reference',JSON.stringify({one:first}),2);
+ assert.equal(execute(s,runtime,'assets','asset',plan.fingerprint).conflict,'deleteChanged');
+ const updated=inspect(s,runtime,'assets','asset'),result=execute(s,runtime,'assets','asset',updated.fingerprint);
+ assert.equal(s.get('SELECT id FROM assets WHERE id=?','asset'),undefined);assert.equal(result.runtime.layout.one,undefined);assert.deepEqual(result.runtime.screenStates.two,runtime.screenStates.two);assert.equal(result.runtime.blackout,false);
+ assert.equal(JSON.parse(s.get('SELECT layout FROM scenes WHERE id=?','s1').layout).one.layers.length,0);assert.equal(s.setting('lastScene').outputs.one,undefined);
+ const screenPlan=inspect(s,result.runtime,'screens','two');assert.equal(screenPlan.devices[0].name,'Display');const cleared=execute(s,result.runtime,'screens','two',screenPlan.fingerprint);
+ assert.equal(s.get('SELECT screen FROM devices WHERE id=?','device').screen,null);assert.deepEqual(JSON.parse(s.get('SELECT layout FROM scenes WHERE id=?','s2').layout),{});assert.equal(cleared.runtime.scene,null);
+ assert.equal(s.get('SELECT id FROM scenes WHERE id=?','s2').id,'s2');
+});
