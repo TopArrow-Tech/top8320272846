@@ -4,6 +4,12 @@ By [栈外手记](https://www.toparrow.top/web/publisher/%E6%A0%88%E5%A4%96%E6%8
 
 Connect multiple screens over a local network, assign images, videos and text, and switch prepared scenes with one click.
 
+![screenshot](https://cos.toparrow.top/appscreenshot/20261111_1b7965954b272187.jpg)
+
+![screenshot](https://cos.toparrow.top/appscreenshot/20261111_e9a62f72fdb91790.jpg)
+
+![screenshot](https://cos.toparrow.top/appscreenshot/20261111_fc3462eaf69772dd.jpg)
+
 **Tags:** Multiscreen Display, Live Screen Control, Scene Switching
 
 ## Versions
